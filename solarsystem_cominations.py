@@ -9,8 +9,10 @@ import re
 FUNCTION_FOR_OPERATOR = {'/': operator.div, '*': operator.mul,
                          "-": operator.sub, "+": operator.add,
                          "**": operator.pow}
-OPERATOR_FOR_FUNC_NAME = {'div': '/', "mul": "*", "pow": "**", "sub": "-", "add": "+"}
 OPERATOR_FOR_FUNCTION = {v: k for k, v in FUNCTION_FOR_OPERATOR.items()}
+OPERATOR_FOR_FUNC_NAME = {k.__name__: v for k, v in OPERATOR_FOR_FUNCTION.items()}
+
+MARKDOWN_OUTPUT = True
 
 
 def dround(decimal_number, decimal_places):
@@ -69,6 +71,7 @@ def print_results(results):
     def pretty_print(x):
         _get_name = lambda x: x[0]
         _get_gravity = lambda x: x[1]
+        _get_gravity_ish = lambda x: "~%.4f" % x[1]
 
         planets = x[0]
         planet_a = planets[0]
@@ -78,18 +81,27 @@ def print_results(results):
         operation_result_almost_rounded = sdround(operation_result, decimal_places_of_accuracy + 1)
         operation_result_rounded = sdround(operation_result, decimal_places_of_accuracy)
         distance_from_integer = "%.1e" % float(x[3])  # scientific notation
-        print _get_name(planet_a), operation, _get_name(planet_b), \
-            '=', \
-            _get_gravity(planet_a), operation, _get_gravity(planet_b), \
-            '=', operation_result_almost_rounded, "(rounded", operation_result_rounded, ") delta:",\
-            distance_from_integer
 
+        if not MARKDOWN_OUTPUT:
+            # DEBUG OUTPUT
+            print _get_name(planet_a), operation, _get_name(planet_b), \
+                '=', \
+                _get_gravity(planet_a), operation, _get_gravity(planet_b), \
+                '=', operation_result_almost_rounded, "(rounded", operation_result_rounded, ") delta:", \
+                distance_from_integer
+        else:
+            # FANCY OUTPUT
+            print "|", _get_name(planet_a), operation, _get_name(planet_b), "|", \
+                _get_gravity_ish(planet_a), operation, _get_gravity_ish(planet_b), "|", \
+                operation_result_almost_rounded, "|", distance_from_integer, "|"
+
+    if MARKDOWN_OUTPUT:
+        print "| Planet Names | Values | Result | Delta from integer |\n|---|---|---|---|"
+        results = results[::-1]
     for x in results:
         pretty_print(x)
-
-
-def div2(a, b):
-    return a / b
+    if not MARKDOWN_OUTPUT:
+        print "(nearest to integer printed last)"
 
 
 if __name__ == "__main__":
@@ -120,13 +132,14 @@ if __name__ == "__main__":
 
     grav_ms = parse_and_normalize(data)
 
-    decimal_places_of_accuracy = 1
+    decimal_places_of_accuracy = 2
 
     interesting_combinations = operator_permutations(grav_ms,
                                                      accuracy=decimal_places_of_accuracy,
                                                      operators=["+", "-", "/", "*", "**"])
 
-    print_results(reversed(interesting_combinations))
+    print "== Surface Gravity Combinations =="
+    print_results(interesting_combinations[::-1])
     print "=============="
-    print "nearest to integer printed last, with accuracy %ddp" % decimal_places_of_accuracy
+    print "accuracy %ddp" % decimal_places_of_accuracy
     print "total results:", len(interesting_combinations)
