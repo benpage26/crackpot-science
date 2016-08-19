@@ -72,6 +72,7 @@ def print_results(results):
         _get_name = lambda x: x[0]
         _get_gravity = lambda x: x[1]
         _get_gravity_ish = lambda x: "~%.4f" % x[1]
+        _get_gravity_markdown = lambda x: "%.5f" % x[1]
 
         planets = x[0]
         planet_a = planets[0]
@@ -92,11 +93,12 @@ def print_results(results):
         else:
             # FANCY OUTPUT
             print "|", _get_name(planet_a), operation, _get_name(planet_b), "|", \
-                _get_gravity_ish(planet_a), operation, _get_gravity_ish(planet_b), "|", \
+                _get_gravity_markdown(planet_a), operation, _get_gravity_markdown(planet_b), "|", \
                 operation_result_almost_rounded, "|", distance_from_integer, "|"
 
     if MARKDOWN_OUTPUT:
-        print "| Planet Names | Values | Result | Delta from integer |\n|---|---|---|---|"
+        print "| Planet Names | Approx. Values | Result | Delta from nearest Integer |"
+        print "|---|---|---|---|"
         results = results[::-1]
     for x in results:
         pretty_print(x)
@@ -138,8 +140,9 @@ if __name__ == "__main__":
                                                      accuracy=decimal_places_of_accuracy,
                                                      operators=["+", "-", "/", "*", "**"])
 
-    print "== Surface Gravity Combinations =="
+    print "## Surface Gravity Combinations\n"
     print_results(interesting_combinations[::-1])
     print "=============="
     print "accuracy %ddp" % decimal_places_of_accuracy
+    print
     print "total results:", len(interesting_combinations)
